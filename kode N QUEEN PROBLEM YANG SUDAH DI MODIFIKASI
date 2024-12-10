@@ -1,0 +1,86 @@
+import time
+import random
+
+
+
+
+def is_safe(board, row, col, N):
+    # Memeriksa apakah ada ratu di baris yang sama
+    for i in range(col):
+        if board[row][i] == 1:
+            return False
+    
+    # Memeriksa diagonal kiri atas
+    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+
+    # Memeriksa diagonal kiri bawah
+    for i, j in zip(range(row, N, 1), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+    
+    return True
+
+def solve_n_queen_util(board, col, N, start_time, time_limit):
+    # Cek jika waktu melebihi batas waktu
+    if time.time() - start_time > time_limit:
+        print("Batas waktu tercapai!")
+        return False
+
+    # Jika semua ratu sudah ditempatkan, maka kita selesai
+    if col >= N:
+        return True
+
+    # Acak urutan baris untuk mencoba penempatan ratu di kolom ini
+    rows = list(range(N))
+    random.shuffle(rows)
+
+    # Coba menempatkan ratu di setiap baris pada kolom ini
+    for i in rows:
+        if is_safe(board, i, col, N):
+            # Tempatkan ratu di board[i][col]
+            board[i][col] = 1
+
+            # Recursively mencoba menempatkan ratu di kolom berikutnya
+            if solve_n_queen_util(board, col + 1, N, start_time, time_limit):
+                return True
+
+            # Jika tidak valid, batalkan penempatan (backtrack)
+            board[i][col] = 0
+    
+    # Jika tidak ada posisi yang valid, kembalikan False
+    return False
+
+def solve_n_queen(N, time_limit):
+    # Membuat papan catur kosong (0 menandakan posisi kosong)
+    board = [[0 for _ in range(N)] for _ in range(N)]
+
+    # Mulai menghitung waktu eksekusi
+    start_time = time.time()
+
+    # Mencoba untuk menyelesaikan masalah N-Queen dengan batas waktu
+    if not solve_n_queen_util(board, 0, N, start_time, time_limit):
+        print("Tidak ada solusi yang ditemukan dalam batas waktu.")
+        return False
+
+    # Menyelesaikan waktu eksekusi
+    end_time = time.time()
+    
+    # Menampilkan solusi
+    print_solution(board)
+
+    # Menampilkan waktu eksekusi dalam detik
+    print(f"Waktu eksekusi: {end_time - start_time:.6f} detik")
+    
+    return True
+
+def print_solution(board):
+    for row in board:
+        print(" ".join("Q" if x else "." for x in row))
+
+# Menjalankan fungsi untuk N = 8 dengan batas waktu 2 detik
+N = 8
+time_limit = 2  # Batas waktu dalam detik
+solve_n_queen(N, time_limit)
+ 
